@@ -17,19 +17,44 @@ module casca(
 	output [6:0] HEX7
 );
 
-  wire [7:0] recebido;
-  wire [7:0] letra;
+  //wire [7:0] recebido;
+  //wire [7:0] letra;
+  wire ocupado;
+  //wire endOfString;
+  //wire char;
+  wire send_computer;
+  wire [7:0] send_char;
+  //wire [7:0] caracteres [255:0];
+  wire [7:0] received_char;
+  wire rx_end;
+  
+  string_transmitter transmissao(
+	 .i_Clk(CLOCK_50),
+	 .i_Rst(KEY[0]),
+	 .i_txd_busy(ocupado),
+	 .i_rx_data(received_char),
+	 .i_rx_end(rx_end),
+	 //.i_endOfString(endOfString),
+	 //.caracteres(caracteres),
+	 .tx_data(send_char),
+	 .o_send_to_computer(send_computer)
+	 );
   
   Serial echo(
     .i_Clk(CLOCK_50),
     .i_Rst_n(KEY[0]),
     .i_UART_RXD(UART_RXD),
-	 .i_send_data_to_host_computer(SW[0]), // invertido pela natureza default do KEY na DE2
+	 .i_send_data_to_host_computer(send_computer), // invertido pela natureza default do KEY na DE2
+	 .i_send_data(send_char),
+	 .o_received_data(received_char),
+	 .o_end_of_packet(rx_end),
     .o_UART_TXD(UART_TXD),
 	 .count_data(count_data),
 	 .buffer(binNumber),
-	 .last_tx(),
-	 .eol(LEDR[17])
+	 //.caracteres(caracteres),
+	 //.last_tx(),
+	 //.endOfString(endOfString),
+	 .o_busy(ocupado)
   );
   
   
