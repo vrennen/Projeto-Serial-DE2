@@ -15,7 +15,7 @@ module string_transmitter(
 	//logic o_send_to_computer;
 	logic terminarmsg;
 	
-	reg gotIt; //copiar a logica do modulo original de evitar pegar 2x
+	reg gotIt; //copiar a logica do modulo original de evitar pegar 2x o mesmo caractere
 	always@(posedge i_Clk or negedge i_Rst) begin
 		if (!i_Rst) begin
 			integer i;

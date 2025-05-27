@@ -9,9 +9,6 @@ module Serial(
   output o_UART_TXD, // pino serial de transmissao (da placa pro computador)
   output reg [7:0] count_data,
   output reg [31:0] buffer,
-  //output reg [7:0] caracteres [255:0],
-  //output reg [7:0] last_tx,
-  //output reg endOfString,
   output reg o_busy
   );
   // PARAMETRIZATION ---------------------------------------------------------
@@ -31,47 +28,31 @@ module Serial(
   async_receiver #( .ClkFrequency(CLOCK_FREQUENCY), .Baud(BAUD) ) ar(
     .clk(i_Clk), // clock
     .RxD(i_UART_RXD),  // corresponde ao pino em que o dato chega serializado.
-    .RxD_data_ready(rx_data_ready), // sinal que sobre quando o dado esta pronto
+    .RxD_data_ready(rx_data_ready), // sinal que sobe quando o dado esta pronto
     .RxD_data(rx_data), // dado recebido serializado
-    .RxD_endofpacket(RxD_endofpacket), //pino existente mas nao usado neste exemplo.
+    .RxD_endofpacket(RxD_endofpacket), // sinal que sobe quando a linha fica em standby
     .RxD_idle(RxD_idle) //pino existente mas nao usado neste exemplo.
   );
   
   
   reg gotIt; // AQUI
-  //reg endOfString;
 	
 	always @ (posedge i_Clk or negedge i_Rst_n) begin
 		if(!i_Rst_n) begin
 			count_data = 7'h00000; 
 			buffer = 32'h00000041;// note que eu mudei aqui para que o primeiro dado seja o que inicia o handshake
-			//caracteres[0] = 8'h41;
 			gotIt = 1'b0; // AQUI
 		end else begin
 			if(RxD_endofpacket)begin
 				if(!gotIt)begin// AQUI
 					count_data = count_data + 1'b1; // soma a primeira vez que detecta a condicao
 					buffer = {buffer, rx_data}; // concatena o dado que acabou de chegar ao final do buffer, descartando os que vieram antes.
-					
-					/* breno: logica de finalizar string ou concatenar
-					if (rx_data == 8'h01) begin // recebeu  caractere zero
-						endOfString = 1'b1;
-					end
-					else begin
-						endOfString = 1'b0;
-						//caracteres = {caracteres, rx_data}; //breno: adicionar no 'buffer'
-						caracteres[0] <= rx_data;
-						caracteres[255:1] <= caracteres[254:0];
-					end
-					*/
-					
 					gotIt = 1'b1; // garante que na proxima nao contabiliza mais // AQUI
 				end else begin// AQUI
 					// enquanto o ok estiver ativo mas ja capturou o incremento, mantem tudo
 					count_data = count_data;// AQUI
 					buffer = buffer;
 					gotIt = gotIt; // AQUI
-					//caracteres = caracteres;
 				end// AQUI
 			end else begin
 				//somente quando o ok baixa eh que habilita o gotIt para pegar o proximo incremento.
@@ -79,7 +60,6 @@ module Serial(
 				//e mantem o count_data como esta.
 				count_data = count_data;
 				buffer = buffer;
-				//caracteres = caracteres;
 			end
 		end
 	end
