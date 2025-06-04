@@ -3,7 +3,9 @@ module casca(
 	input [3:0] KEY,
 	input [1:0] SW,
 	input UART_RXD,
-	output UART_TXD,
+	output UART_TXD
+	/*
+	// os leds e os displays de 7 segmentos nao estao sendo usados, mas manter aqui caso sejam necessarioss
 	output [17:0] LEDR, // vai apresentar a quantidade de dados recebidos do computador
 	// nesse exemplo, cada par de displays vai apresentar o hexadecimal do caractere recebido.
 	// a cada novo caractere, os anteriores sao shiftados para a esquerda.
@@ -14,7 +16,7 @@ module casca(
 	output [6:0] HEX4,
 	output [6:0] HEX5,
 	output [6:0] HEX6,
-	output [6:0] HEX7
+	output [6:0] HEX7 */
 );
   wire ocupado;
   wire send_computer;
@@ -39,18 +41,13 @@ module casca(
 	 .i_send_data_to_host_computer(send_computer),
 	 .i_send_data(send_char),
 	 .o_received_data(received_char),
-	 .o_end_of_packet(rx_end),
+	 .o_data_ready(rx_end),
     .o_UART_TXD(UART_TXD),
-	 .count_data(count_data),
-	 .buffer(binNumber),
 	 .o_busy(ocupado)
   );
   
+
   
-  wire [31:0] binNumber;
-  wire [7:0] count_data;
-  assign LEDR[7:0] = count_data;
-  
-  SEG7_LUT_8 sl_1(	HEX0,HEX1,HEX2,HEX3,HEX4,HEX5,HEX6,HEX7,binNumber);
+  //SEG7_LUT_8 sl_1(	HEX0,HEX1,HEX2,HEX3,HEX4,HEX5,HEX6,HEX7,binNumber);
 
 endmodule 
